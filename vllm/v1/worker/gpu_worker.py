@@ -27,6 +27,7 @@ from vllm.v1.outputs import ModelRunnerOutput
 from vllm.v1.utils import report_usage_stats
 from vllm.v1.worker.gpu_model_runner import GPUModelRunner
 from vllm.v1.worker.worker_base import WorkerBase
+from vllm.v1.worker.numa_affinity import set_numa_affinity_for_gpu
 
 logger = init_logger(__name__)
 
@@ -111,6 +112,7 @@ class Worker(WorkerBase):
             self._sleep_saved_buffers = {}
 
     def init_device(self):
+        set_numa_affinity_for_gpu(self.local_rank)
         if self.device_config.device.type == "cuda":
             # torch.distributed.all_reduce does not free the input tensor until
             # the synchronization point. This causes the memory usage to grow
